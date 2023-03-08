@@ -1,5 +1,5 @@
-import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
-import { mainApi } from '../services/main';
+import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
+import { mainApi } from "../services/main";
 
 export const store = configureStore({
   reducer: {
@@ -9,5 +9,3 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(mainApi.middleware),
 });
-
-
