@@ -1,230 +1,197 @@
-import { Typography, Popper, Fade, Box, Switch, Slider, TextField, Stack, IconButton, Backdrop } from "@mui/material";
+import { Typography, Popper, Fade, Box, Switch, Slider, TextField, Stack, IconButton, ClickAwayListener, Button } from "@mui/material";
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { popperOpened, textUpdated, enabledUpdated, sizeUpdated, stylingComponentDeleted } from "./stylingAndDataSlice";
+import { layoutComponentDeleted } from "./layoutSlice";
+import ColorPicker from "./ColorPicker";
 
 
-export default function Stat() {
-  const [open, setOpen] = useState(false);
+export default function Stat({ toolbar, statId }: any) { //can probably change statId to id so it's more generic for other components
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [titleText, setTitleText] = useState("Sandwich Revenue")
-  const [titleSwitch, setTitleSwitch] = useState(true)
-  const [titleSize, setTitleSize] = useState(22)
-  const [dataSwitch, setDataSwitch] = useState(true)
-  const [dataSize, setDataSize] = useState(36)
-  const [subtitleText, setSubtitleText] = useState("This Month")
-  const [subtitleSwitch, setSubtitleSwitch] = useState(true)
-  const [subtitleSize, setSubtitleSize] = useState(18)
 
-  const handleTitleSizeField = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setTitleSize(parseInt(event.target.value));
-  }
-  const handleTitleSizeSlider = (event: Event, newValue: number | number[]) => {
-    setTitleSize(newValue as number);
-  };
-  const handleTitleSwitch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTitleSwitch(event.target.checked);
-  };
+  const dispatch = useDispatch()
+  const stylingAndData = useSelector((state: any) => //should use RootState here instead any
+    state.stylingAndData.find((stylingAndData: any) => stylingAndData.id === statId)
+  )
 
-  const handleDataSizeField = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDataSize(parseInt(event.target.value));
+  const handleSizeField = (type: any, event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    dispatch(sizeUpdated({ id: statId, type: type, size: parseInt(event.target.value) }))
   }
-  const handleDataSizeSlider = (event: Event, newValue: number | number[]) => {
-    setDataSize(newValue as number);
-  };
-  const handleDataSwitch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDataSwitch(event.target.checked);
-  };
-  
-  const handleSubtitleSizeField = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSubtitleSize(parseInt(event.target.value));
+  const handleSizeSlider = (type: any, event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(sizeUpdated({ id: statId, type: type, size: parseInt(event.target.value) }))
   }
-  const handleSubtitleSizeSlider = (event: Event, newValue: number | number[]) => {
-    setSubtitleSize(newValue as number);
-  };
-  const handleSubtitleSwitch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSubtitleSwitch(event.target.checked);
-  };
 
+  const handleDeleteButton = () => {
+    //dispatch a reducer to delete from layout and from stylingAndData
+    dispatch(layoutComponentDeleted({ id: statId }))
+    dispatch(stylingComponentDeleted({ id: statId }))
+
+    //make confirmationmodal true
+  }
+
+  const handleClickAway = () => {
+    dispatch(popperOpened({ id: statId, isOpen: false }))
+  };
   const handlePopperClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-    setOpen((previousOpen) => !previousOpen);
+    const target = event.currentTarget
+    setAnchorEl(target);
+    setTimeout(() => {
+      dispatch(popperOpened({ id: statId, isOpen: true })) //be able to explain why setTimeout is necessary here
+    })
   };
-  const canBeOpen = open && Boolean(anchorEl);
-  const id = canBeOpen ? 'transition-popper' : undefined;
+  const canBeOpen = stylingAndData.isOpen && Boolean(anchorEl);
+  const popperId = canBeOpen ? 'transition-popper' : undefined;
 
   return (
     <>
-      <Stack justifyContent={"start"} flexDirection={"row"}>
-        <IconButton onClick={handlePopperClick}>
-          <SettingsSuggestIcon />
-        </IconButton>
-      </Stack>
-      <Popper
-        id={id}
-        open={open}
-        anchorEl={anchorEl} transition
-        placement="left-start"
-        disablePortal={false}
-        modifiers={[
-          {
-            name: 'flip',
-            enabled: true,
-            options: {
-              altBoundary: true,
-              rootBoundary: 'document',
-              padding: 8,
+      {toolbar &&
+        <Stack justifyContent={"start"} flexDirection={"row"}>
+          <IconButton onClick={handlePopperClick} disabled={stylingAndData.isOpen} style={{ position: "absolute", top: "10px" }} >
+            <SettingsSuggestIcon />
+          </IconButton>
+        </Stack>
+      }
+      <ClickAwayListener onClickAway={handleClickAway}>
+        <Popper
+          id={popperId}
+          open={stylingAndData.isOpen}
+          anchorEl={anchorEl} transition
+          placement="left-start"
+          disablePortal={false}
+          sx={{ zIndex: 3 }}
+          modifiers={[
+            {
+              name: 'flip',
+              enabled: true,
+              options: {
+                altBoundary: true,
+                rootBoundary: 'document',
+                padding: 8,
+              },
             },
-          },
-          {
-            name: 'preventOverflow',
-            enabled: false,
-            options: {
-              altAxis: true,
-              altBoundary: true,
-              tether: true,
-              rootBoundary: 'document',
-              padding: 8,
+            {
+              name: 'preventOverflow',
+              enabled: false,
+              options: {
+                altAxis: true,
+                altBoundary: true,
+                tether: true,
+                rootBoundary: 'document',
+                padding: 8,
+              },
             },
-          },
-        ]}
-      >{({ TransitionProps }) => (
-        <Fade {...TransitionProps} timeout={350}>
-          <Box sx={{ border: 2, borderRadius: 5, p: 1, bgcolor: 'background.paper' }}>
-            <Stack direction="row">
-              <Typography variant="h5">Title</Typography>
-              <Switch checked={titleSwitch} onChange={handleTitleSwitch}/>
-            </Stack>
-            {titleSwitch && 
-              <Stack direction="column" spacing={1} alignItems="center">
-                <TextField 
-                  value={titleText}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                    setTitleText(event.target.value);
-                  }}
-                />
-                <Stack direction="row" spacing={1} alignItems={"center"}>
-                  <Slider value={titleSize} onChange={handleTitleSizeSlider} min={10} max={70}/>
-                  <TextField
-                    label="Font Size"
-                    type={"number"} 
-                    value={titleSize}
-                    inputProps={{ type: 'number'}}
-                    onChange={handleTitleSizeField}
-                  />
-                </Stack>
-              </Stack>}
-              
-              <Stack direction="row">
-                <Typography variant="h5">Data</Typography>
-                <Switch checked={dataSwitch} onChange={handleDataSwitch}/>
+          ]}
+        >{({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={350}>
+            <Box sx={{ border: 2, borderRadius: 5, padding: "20px 30px 20px 20px", bgcolor: 'background.paper' }}>
+              <Box justifyContent="center" display="flex" paddingTop={1}>
+                <Button style={{ justifySelf: "center" }} variant="contained" color="error" size="small"
+                  onClick={() => { handleDeleteButton() }}>Delete</Button>
+              </Box>
+              <Stack direction="row" sx={{ paddingTop: 2, paddingBottom: 2, alignItems: "center" }}>
+                <Typography variant="h5">Title</Typography>
+                <Switch checked={stylingAndData.enabled.title} onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                  dispatch(enabledUpdated({ id: statId, type: "title", enabled: event.target.checked }))} />
+                <ColorPicker id={statId} type="title" color={stylingAndData.color.title} />
               </Stack>
-              {dataSwitch && 
-              <Stack direction="column" spacing={1} alignItems="center">
-                {/* Autocomplete (searchable select box) with grouped categories for different parts of api */}
-                <Stack direction="row" spacing={1} alignItems={"center"}>
-                  <Slider value={dataSize} onChange={handleDataSizeSlider} min={10} max={70}/>
+              {stylingAndData.enabled.title &&
+                <Stack direction="column" spacing={2} alignItems="flex-start" marginLeft={2}>
                   <TextField
-                    label="Font Size"
-                    type={"number"} 
-                    value={dataSize}
-                    inputProps={{ type: 'number'}}
-                    onChange={handleDataSizeField}
-                  />
-                </Stack>
-              </Stack>} 
-
-
-
-              <Stack direction="row">
-                <Typography variant="h5">Subtitle</Typography>
-                <Switch checked={subtitleSwitch} onChange={handleSubtitleSwitch}/>
-              </Stack>
-              {subtitleSwitch && 
-                <Stack direction="column" spacing={1} alignItems="center">
-                  <TextField 
-                    value={subtitleText}
+                    label="Title Text"
+                    value={stylingAndData.text.title}
+                    fullWidth
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      setSubtitleText(event.target.value);
+                      dispatch(textUpdated({ id: statId, type: "title", text: event.target.value }))
+
                     }}
                   />
                   <Stack direction="row" spacing={1} alignItems={"center"}>
-                    <Slider value={subtitleSize} onChange={handleSubtitleSizeSlider} min={10} max={70}/>
                     <TextField
                       label="Font Size"
-                      type={"number"} 
-                      value={subtitleSize}
-                      inputProps={{ type: 'number'}}
-                      onChange={handleSubtitleSizeField}
+                      type={"number"}
+                      value={stylingAndData.size.title}
+                      inputProps={{ type: 'number' }}
+                      onChange={(event) => handleSizeField("title", event)}
                     />
+                    <Slider value={stylingAndData.size.title} min={10} max={70}
+                      //@ts-ignore
+                      onChange={(event) => handleSizeSlider("title", event)} />
+
                   </Stack>
                 </Stack>}
 
-            {/* COLOR PICKER */}
-          </Box>
-        </Fade>
-      )}
-      </Popper>
+              <Stack direction="row" sx={{ paddingTop: 4, paddingBottom: 2, }} >
+                <Typography variant="h5">Data</Typography>
+                <Switch checked={stylingAndData.enabled.data} onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                  dispatch(enabledUpdated({ id: statId, type: "data", enabled: event.target.checked }))} />
+                <ColorPicker id={statId} type="data" color={stylingAndData.color.data} />
 
+              </Stack>
+              {stylingAndData.enabled.data &&
+                <Stack direction="column" spacing={2} alignItems="flex-start" marginLeft={2}>
 
+                  {/* Autocomplete (searchable select box) with grouped categories for different parts of api */}
+                  <Stack direction="row" spacing={1} alignItems={"center"}>
+                    <TextField
+                      label="Font Size"
+                      type={"number"}
+                      value={stylingAndData.size.data}
+                      inputProps={{ type: 'number' }}
+                      onChange={(event) => handleSizeField("data", event)}
+                    />
+                    <Slider value={stylingAndData.size.data} min={10} max={70}
+                      //@ts-ignore
+                      onChange={(event) => handleSizeSlider("data", event)} />
+                  </Stack>
+                </Stack>}
+              <Stack direction="row" sx={{ paddingTop: 4, paddingBottom: 2, }}>
+                <Typography variant="h5" >Subtitle</Typography>
+                <Switch checked={stylingAndData.enabled.subtitle} onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                  dispatch(enabledUpdated({ id: statId, type: "subtitle", enabled: event.target.checked }))} />
+                <ColorPicker id={statId} type="subtitle" color={stylingAndData.color.subtitle} />
 
-      {titleSwitch && 
-      <Typography style={{fontSize: titleSize}}     variant="h6" color="primary" gutterBottom>
-        {titleText}
-      </Typography>}
-      {dataSwitch &&
-      <Typography style={{fontSize: dataSize}} variant="h4">
-        $3,024
-      </Typography>}
-      {subtitleSwitch &&
-      <Typography style={{fontSize: subtitleSize}} variant="subtitle1">
-        {subtitleText}
-      </Typography>}
+              </Stack>
+              {stylingAndData.enabled.subtitle &&
+                <Stack direction="column" spacing={2} alignItems="flex-start" marginLeft={2}>
+                  <TextField
+                    label="Subtitle Text"
+                    fullWidth
+                    value={stylingAndData.text.subtitle}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                      dispatch(textUpdated({ id: statId, type: "subtitle", text: event.target.value }))
+                    }}
+                  />
+                  <Stack direction="row" spacing={1} alignItems={"center"} sx={{ paddingBottom: 2 }}>
+                    <TextField
+                      label="Font Size"
+                      type={"number"}
+                      value={stylingAndData.size.subtitle}
+                      inputProps={{ type: 'number' }}
+                      onChange={(event) => handleSizeField("subtitle", event)}
+                    />
+                    <Slider value={stylingAndData.size.subtitle} min={10} max={70}
+                      //@ts-ignore
+                      onChange={(event) => handleSizeSlider("subtitle", event)} />
+                  </Stack>
+                </Stack>}
+            </Box>
+          </Fade>)}
+        </Popper>
+      </ClickAwayListener>
+      {stylingAndData.enabled.title &&
+        <Typography style={{ fontSize: stylingAndData.size.title }} variant="h6" color={stylingAndData.color.title} >
+          {stylingAndData.text.title}
+        </Typography>}
+      {stylingAndData.enabled.data &&
+        <Typography style={{ fontSize: stylingAndData.size.data }} variant="h4" color={stylingAndData.color.data}>
+          $3,024
+        </Typography>}
+      {stylingAndData.enabled.subtitle &&
+        <Typography style={{ fontSize: stylingAndData.size.subtitle }} variant="subtitle1" color={stylingAndData.color.subtitle}>
+          {stylingAndData.text.subtitle}
+        </Typography>}
+
     </>
   );
 }
-
-
-// function StatMenu() {
- 
-//   return (
-//     <div>
-//       <Popper
-//         id={id}
-//         open={open}
-//         anchorEl={anchorEl} transition
-//         placement="right-start"
-//         disablePortal={false}
-//         modifiers={[
-//           {
-//             name: 'flip',
-//             enabled: true,
-//             options: {
-//               altBoundary: true,
-//               rootBoundary: 'document',
-//               padding: 8,
-//             },
-//           },
-//           {
-//             name: 'preventOverflow',
-//             enabled: false,
-//             options: {
-//               altAxis: true,
-//               altBoundary: true,
-//               tether: true,
-//               rootBoundary: 'document',
-//               padding: 8,
-//             },
-//           },
-//         ]}
-//       >{({ TransitionProps }) => (
-//         <Fade {...TransitionProps} timeout={350}>
-//           <Box sx={{ border: 1, p: 1, bgcolor: 'background.paper' }}>
-//             The content of the Popper.
-//           </Box>
-//         </Fade>
-//       )}
-//       </Popper>
-//     </div>
-
-//   )
-// }

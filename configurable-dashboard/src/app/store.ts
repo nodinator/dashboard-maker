@@ -1,11 +1,13 @@
-import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 import { mainApi } from "../services/main";
 import layoutReducer from "../components/layoutSlice";
+import stylingAndDataReducer from "../components/stylingAndDataSlice"
+
 export const store = configureStore({
   reducer: {
     [mainApi.reducerPath]: mainApi.reducer,
     layout: layoutReducer,
-    //stylingAndData: stylingAndDataReducer,
+    stylingAndData: stylingAndDataReducer,
     //counters: countersReducer,
   },
 

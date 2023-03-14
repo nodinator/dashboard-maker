@@ -3,20 +3,26 @@ import type { RootState } from '../app/store'
 
 const layoutSlice = createSlice({
   name: 'layout',
-  initialState: { value: [{ i: "movable", x: 0, y: 1.3, w: 4, h: 3, }] }, //I think this item isn't ever actually rendering?
+  initialState: [] as { i: string, x: number, y: number, w: number, h: number }[],
   reducers: {
-    addComponent: (state, action) => { //action.type = 'layout/componentAdded'
-      //action.payload = '{ i: "movable", x: 0, y: 1.3, w: 4, h: 3, }'
-      state.value.push(action.payload)
+    layoutAdded: (state, action) => {
+      state.push(action.payload)
     },
-    updateLayout: (state, action) => {
-      state.value = action.payload
+    layoutUpdated: (state, action) => {
+      return action.payload
+    },
+    layoutComponentDeleted: (state, action) => {
+      const { id } = action.payload
+      const existingComponentIndex = state.findIndex(component => component.i === id)
+      if (existingComponentIndex) {
+        state.splice(existingComponentIndex, 1)
+      }
     }
   }
 })
 
-export const { addComponent, updateLayout } = layoutSlice.actions
+export const { layoutAdded, layoutUpdated, layoutComponentDeleted } = layoutSlice.actions
 
-export const selectLayout = (state: RootState) => state.layout.value
+export const selectLayout = (state: RootState) => state.layout
 
 export default layoutSlice.reducer
