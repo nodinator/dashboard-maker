@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import type { RootState } from '../app/store'
+import type { RootState } from './store'
 
 const layoutSlice = createSlice({
   name: 'layout',
@@ -14,7 +14,7 @@ const layoutSlice = createSlice({
     layoutComponentDeleted: (state, action) => {
       const { id } = action.payload
       const existingComponentIndex = state.findIndex(component => component.i === id)
-      if (existingComponentIndex) {
+      if (existingComponentIndex >= 0) {
         state.splice(existingComponentIndex, 1)
       }
     }

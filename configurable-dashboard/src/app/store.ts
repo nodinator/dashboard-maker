@@ -1,14 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { mainApi } from "../services/main";
-import layoutReducer from "../components/layoutSlice";
-import stylingAndDataReducer from "../components/stylingAndDataSlice"
+import layoutReducer from "./layoutSlice";
+import stylingAndDataReducer from "./stylingAndDataSlice"
+import serverReducer from "./serverSlice";
 
 export const store = configureStore({
   reducer: {
     [mainApi.reducerPath]: mainApi.reducer,
     layout: layoutReducer,
     stylingAndData: stylingAndDataReducer,
-    //counters: countersReducer,
+    server: serverReducer
   },
 
   middleware: (getDefaultMiddleware) =>

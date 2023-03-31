@@ -15,6 +15,10 @@ const buildManager = () => {
   const ecu1 = completedParts.find(part => part.name === 'ECU 1')
   const blockI3 = completedParts.find(part => part.name === 'Block I3')
   const engineI3 = completedEngines.find(engine => engine.name === 'I3')
+  const ecu3 = completedParts.find(part => part.name === 'ECU 3')
+
+  //FOR TESTING SO SOMETHING ALWAYS CHANGES
+  ecu3.quantity++
 
   //ordering
   if (ecu1.quantity < 20) {

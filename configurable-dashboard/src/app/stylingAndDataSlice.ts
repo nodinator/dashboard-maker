@@ -1,13 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit'
-import type { RootState } from '../app/store'
+import type { RootState } from './store'
 
 
 export const initialState = [{
-  id: "stat1",   //this needs to work for statlist and other components as well? pros (DRY) and cons (additional renders?) - read up more on slices and redux performance
+  id: "stat1",   //should this work for statlist and other components as well? pros (DRY) and cons (additional renders?) - read up more on slices and redux performance
   isOpen: false,
   enabled: { title: true, data: true, subtitle: true },
   color: { title: "#1976d2", data: "#000000", subtitle: "#000000" },
   text: { title: "Sandwich", subtitle: "This Month" },
+  data: { category: "", specificOption: null },
   size: { title: 22, data: 36, subtitle: 18 }
 }]
 
@@ -22,7 +23,7 @@ const stylingAndDataSlice = createSlice({
     stylingComponentDeleted: (state, action) => {
       const { id } = action.payload
       const existingComponentIndex = state.findIndex(component => component.id === id)
-      if (existingComponentIndex) {
+      if (existingComponentIndex >= 0) {
         state.splice(existingComponentIndex, 1)
       }
     },
@@ -40,6 +41,13 @@ const stylingAndDataSlice = createSlice({
       const existingComponent = state.find(component => component.id === id)
       if (existingComponent) {
         existingComponent.text[type as keyof typeof existingComponent.text] = text //surely there's a more readable typing solution
+      }
+    },
+    dataUpdated: (state, action) => {
+      const { id, category, specificOption } = action.payload
+      const existingComponent = state.find(component => component.id === id)
+      if (existingComponent) {
+        existingComponent.data = { category: category, specificOption: specificOption }
       }
     },
     enabledUpdated: (state, action) => {
@@ -63,11 +71,10 @@ const stylingAndDataSlice = createSlice({
         existingComponent.color[type as keyof typeof existingComponent.color] = color
       }
     },
-
   }
 })
 
-export const { stylingComponentAdded, stylingComponentDeleted, popperOpened, textUpdated, enabledUpdated, sizeUpdated, colorUpdated } = stylingAndDataSlice.actions
+export const { stylingComponentAdded, stylingComponentDeleted, popperOpened, textUpdated, dataUpdated, enabledUpdated, sizeUpdated, colorUpdated } = stylingAndDataSlice.actions
 
 export const selectStylingAndData = (state: RootState) => state.stylingAndData
 

@@ -2,7 +2,7 @@ import { Typography, Popper, Fade, Paper, ClickAwayListener } from "@mui/materia
 import { useState, useRef } from "react";
 import { SketchPicker } from "react-color";
 import { useDispatch } from "react-redux";
-import { colorUpdated } from "./stylingAndDataSlice";
+import { colorUpdated } from "../app/stylingAndDataSlice";
 
 export default function ColorPicker({ id, type, color }: any) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -17,13 +17,11 @@ export default function ColorPicker({ id, type, color }: any) {
   };
   const handleChange = (color: any) => {
     dispatch(colorUpdated({ id: id, type: type, color: color.hex }))
-
   };
   const handleClickAway = (event: any) => {
     if (dialogRef.current && !dialogRef.current.contains(event.target)) {
       setPickerPopper(false)
     }
-
   };
 
   function getTextColorForBackground(backgroundColor: string) {
