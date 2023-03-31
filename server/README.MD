@@ -1,1 +1,4 @@
-use this cmd for reload on save: npm run dev
+In this directory, you can run:
+
+### `npm run dev`
+

@@ -1,4 +1,4 @@
-In the project directory, you can run:
+In this directory, you can run:
 
 ### `npm start`
 
