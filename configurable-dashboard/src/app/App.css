@@ -12,6 +12,10 @@
     animation: App-logo-float infinite 3s ease-in-out;
   }
 }
+* {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+}
 
 .App-header {
   min-height: 100vh;

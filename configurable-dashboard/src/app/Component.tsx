@@ -62,7 +62,7 @@ export default function Component({ toolbar, statId }: any) { //CHANGE STATID TO
             },
             {
               name: 'preventOverflow',
-              enabled: false,
+              enabled: true,
               options: {
                 altAxis: true,
                 altBoundary: true,
